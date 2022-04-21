@@ -7,12 +7,22 @@
     tools:context=".MainActivity">
 
     <Button
-        android:id="@+id/RecordBtnId"
+        android:id="@+id/StartRecordBtnId"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="120dp"
-        android:layout_marginTop="240dp"
-        android:text="Record"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="200dp"
+        android:text="Start Record"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/StopRecordBtnId"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="300dp"
+        android:text="Stop Record"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

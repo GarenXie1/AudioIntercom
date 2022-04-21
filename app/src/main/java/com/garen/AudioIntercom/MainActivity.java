@@ -15,22 +15,25 @@ import com.garen.AudioIntercom.AudioRecorder.AudioRecorder;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Button recordBtn;
+    private Button startRecordBtn,stopRecordBtn;
     private int ret = 0;
     private static final String TAG = "AudioIntercom.MainActivity";
+    private AudioRecorder recorder = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // 找到 R.id.RecordBtnId
-        recordBtn = (Button)findViewById(R.id.RecordBtnId);
+
+        // 找到 R.id.StartrecordBtn
+        startRecordBtn = (Button)findViewById(R.id.StartRecordBtnId);
 
         // 设置 按键的单击事件的回调函数.
-        recordBtn.setOnClickListener(new View.OnClickListener(){
+        startRecordBtn.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
-                AudioRecorder recorder = new AudioRecorder();
+                recorder = new AudioRecorder();
                 ret = recorder.initRecorder();
                 Log.i(TAG ,"init recording audio --> " + ret);
                 if(ret == AudioRecorder.STATE_UNINITIALIZED){
@@ -39,10 +42,20 @@ public class MainActivity extends AppCompatActivity {
                 }else {
                     Log.i(TAG ,"will start recording audio");
                     recorder.startRecording();
-                    recorder.stopRecording();
                 }
             }
         });
+
+        stopRecordBtn = (Button) findViewById(R.id.StopRecordBtnId);
+        stopRecordBtn.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                Log.i(TAG ,"will stop recording audio");
+                recorder.stopRecording();
+            }
+        });
+
+
     }
 
 }

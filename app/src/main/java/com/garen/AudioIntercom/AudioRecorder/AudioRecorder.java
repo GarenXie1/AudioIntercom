@@ -5,25 +5,27 @@ import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
 import android.media.AudioRecord;
 import android.util.Log;
+import android.view.Window;
 
 import androidx.core.app.ActivityCompat;
 
 import com.garen.AudioIntercom.AudioConfig.AudioConfig;
 
 
-public class AudioRecorder implements Runnable{
+public class AudioRecorder implements Runnable {
 
     public static final String TAG = "AudioRecorder";
     public AudioRecord mAudioRecord = null;
     private int AudioStatus = AudioRecord.STATE_UNINITIALIZED;
     private Thread mAudioRecordThread = null;
+    private boolean isRecording = false;
 
     public static int STATE_INITIALIZED = AudioRecord.STATE_INITIALIZED;
     public static int STATE_UNINITIALIZED = AudioRecord.STATE_UNINITIALIZED;
 
 
     @SuppressLint("MissingPermission")
-    public int initRecorder(){
+    public int initRecorder() {
         int audioBufferSize = AudioRecord.getMinBufferSize(AudioConfig.SAMPLE_RATE,
                 AudioConfig.AudioRecordChannelConfig, AudioConfig.audioFormat);
 
@@ -45,6 +47,9 @@ public class AudioRecorder implements Runnable{
 
         // start Record Thread. (Will call run())
         mAudioRecordThread.start();
+
+        // set isRecording Flag
+        isRecording = true;
     }
 
 
@@ -53,6 +58,9 @@ public class AudioRecorder implements Runnable{
         if(AudioStatus == AudioRecord.STATE_INITIALIZED){
             mAudioRecord.stop();
         }
+
+        // set isRecording Flag
+        isRecording = false;
     }
 
     @Override
@@ -65,7 +73,7 @@ public class AudioRecorder implements Runnable{
         byte[] audioData = new byte[1024];
         int readCnt = 0;
         // read audio data.
-        while(true){
+        while(isRecording){
             readCnt = mAudioRecord.read(audioData,0,audioData.length);
             Log.i(TAG,"readCnt --> " + readCnt);
         }
