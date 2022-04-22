@@ -54,8 +54,6 @@ public class MainActivity extends AppCompatActivity {
                 recorder.stopRecording();
             }
         });
-
-
     }
 
 }
