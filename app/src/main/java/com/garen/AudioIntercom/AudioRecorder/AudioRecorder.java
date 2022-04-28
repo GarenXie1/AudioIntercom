@@ -192,7 +192,7 @@ public class AudioRecorder implements Runnable {
         // read audio data.
         while(isRecording){
             readCnt = mAudioRecord.read(audioData,0,audioData.length);
-            Log.i(TAG,"readCnt --> " + readCnt);
+            //Log.i(TAG,"readCnt --> " + readCnt);
 
             // 把 音频数据封装为 AudioRecordData, 并添加到 缓冲区队列中.
             addRecordDataIntoQueue(audioData,readCnt,diacardFos);
@@ -228,4 +228,7 @@ public class AudioRecorder implements Runnable {
         }
     }
 
+    public LinkedBlockingQueue<AudioRecordData> getAudioRecordDataQueue() {
+        return queue;
+    }
 }
