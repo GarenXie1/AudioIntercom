@@ -17,7 +17,7 @@ import com.garen.AudioIntercom.AudioRecorder.UdpSender;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Button startRecordBtn,stopRecordBtn;
+    private Button startRecordBtn,stopRecordBtn,stopRecieveUdpBtn;
     private int ret = 0;
     private static final String TAG = "AudioIntercom.MainActivity";
     private AudioRecorder recorder = null;
@@ -66,6 +66,18 @@ public class MainActivity extends AppCompatActivity {
                 recorder.stopRecording();
             }
         });
+
+        stopRecieveUdpBtn = (Button) findViewById(R.id.StopRecieveBtnId);
+        stopRecieveUdpBtn.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                Log.i(TAG ,"will stop recieving UDP audio data.");
+                udpReciever.stopUdpRecieving();
+            }
+        });
+
+
+
     }
 
 }

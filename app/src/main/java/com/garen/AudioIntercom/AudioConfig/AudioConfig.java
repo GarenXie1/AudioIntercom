@@ -15,6 +15,7 @@ public class AudioConfig {
     // Auido Player debug file.
     public static final String AUDIO_PLAYER_FILENAME = "audio_player.pcm";
     public static final String AUDIO_UDP_RECIEVE_PLAYER_FILENAME = "udp_recieve_audio_player.pcm";
+    public static final String AUDIO_DISCARD_PLAYER_FILENAME = "discard_audio_play.pcm";
 
 
     public static final int SAMPLE_RATE = 8000;
