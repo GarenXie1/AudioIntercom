@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+import com.garen.AudioIntercom.AudioPlayer.UdpReciever;
 import com.garen.AudioIntercom.AudioRecorder.AudioRecorder;
 import com.garen.AudioIntercom.AudioRecorder.UdpSender;
 
@@ -21,6 +22,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "AudioIntercom.MainActivity";
     private AudioRecorder recorder = null;
     private UdpSender udpSender = null;
+    private UdpReciever udpReciever = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +51,10 @@ public class MainActivity extends AppCompatActivity {
                 // 启动 UDP发送线程，来发送 录音数据.
                 udpSender = new UdpSender(recorder.getAudioRecordDataQueue());
                 udpSender.startUdpSending();
+
+                // 启动 UDP 接收线程，用于 接收音频数据
+                udpReciever = new UdpReciever();
+                udpReciever.startUdpRecieving();
             }
         });
 

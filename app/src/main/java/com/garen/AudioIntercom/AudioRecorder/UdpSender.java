@@ -2,6 +2,10 @@ package com.garen.AudioIntercom.AudioRecorder;
 
 import android.util.Log;
 
+import com.garen.AudioIntercom.AudioConfig.AudioConfig;
+
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -48,6 +52,16 @@ public class UdpSender implements Runnable{
     @Override
     public void run() {
 
+        FileOutputStream udpSendFos = null;
+
+        if(AudioConfig.IS_SAVE_AUDIODATA) {
+            try {
+                udpSendFos = new FileOutputStream(AudioConfig.AUDIO_SAVE_PATH + "/" + AudioConfig.AUDIO_UDP_SEND_RECORD_FILENAME);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+
         while(isUdpSending){
 
             // UDP 发送 线程从 LinkedBlockingQueue  队列中取出 AudioRecordData类
@@ -66,16 +80,34 @@ public class UdpSender implements Runnable{
             } catch (UnknownHostException e) {
                 e.printStackTrace();
             }
+            if(AudioConfig.IS_SAVE_AUDIODATA) {
+                try {
+                    udpSendFos.write(data, 0, len);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
 
             // 构造 DatagramPacket 对象
             DatagramPacket dp = new DatagramPacket(data,len,address,PORT);
-            Log.i(TAG,"UDP sending len --> " + len + "; mAudioRecordQueue size --> " + mAudioRecordQueue.remainingCapacity());
+            Log.i(TAG,"UDP sending len --> " + len + "; mAudioRecordQueue size --> " + mAudioRecordQueue.size());
 
             // UDP 发送
             try {
                 udpSocket.send(dp);
             } catch (IOException e) {
                 e.printStackTrace();
+            }
+        }
+
+        if(AudioConfig.IS_SAVE_AUDIODATA) {
+            if (udpSendFos != null) {
+                try {
+                    Log.i(TAG, "udpSendFos.close() . . .");
+                    udpSendFos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }

@@ -91,40 +91,6 @@ public class AudioRecorder implements Runnable {
 
         // set isRecording Flag
         isRecording = false;
-
-        // 停止录音时, 把 队列的数据全部写入文件中，进行调试验证.
-        if(AudioConfig.IS_SAVE_AUDIODATA) {
-            FileOutputStream udpSendFos = null;
-
-            try {
-                udpSendFos = new FileOutputStream(AudioConfig.AUDIO_SAVE_PATH + "/" + AudioConfig.AUDIO_UDP_SEND_RECORD_FILENAME);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
-
-            AudioRecordData audioData = null;
-            while (queue.size() != 0) {
-                try {
-                    audioData = queue.take();
-                    udpSendFos.write(audioData.getData(), 0, audioData.getLen());
-                    //Log.i(TAG, "audioData ---> " + audioData);
-                    //Log.i(TAG, "queue.size() ---> " + queue.size());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            if (udpSendFos != null) {
-                try {
-                    Log.i(TAG, "udpSendFos.close() . . .");
-                    udpSendFos.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
     }
 
     private void addRecordDataIntoQueue(byte[] data , int len, FileOutputStream diacardFos){
