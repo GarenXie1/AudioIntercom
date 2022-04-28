@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.concurrent.LinkedBlockingQueue;
 
 
 public class AudioRecorder implements Runnable {
@@ -25,6 +26,8 @@ public class AudioRecorder implements Runnable {
     private Thread mAudioRecordThread = null;
     private int audioBufferSize = 0;
     private boolean isRecording = false;
+    private int QUEUE_MAX_COUNT = 100;
+    private LinkedBlockingQueue<AudioRecordData> queue;
 
     public static int STATE_INITIALIZED = AudioRecord.STATE_INITIALIZED;
     public static int STATE_UNINITIALIZED = AudioRecord.STATE_UNINITIALIZED;
@@ -43,6 +46,11 @@ public class AudioRecorder implements Runnable {
                 }
             }
         }
+
+        // 初始化  数据缓冲区队列.
+        queue = new LinkedBlockingQueue<AudioRecordData>(QUEUE_MAX_COUNT);
+        Log.i(TAG,"init queue remaining Size --> " + queue.remainingCapacity());
+        Log.i(TAG,"init queue elements Size --> " + queue.size());
     }
 
     @SuppressLint("MissingPermission")
@@ -85,27 +93,74 @@ public class AudioRecorder implements Runnable {
         isRecording = false;
     }
 
+    private void addRecordDataIntoQueue(byte[] data , int len, FileOutputStream fos){
+
+        // new AudioRecordData 类.
+        AudioRecordData audioData = new AudioRecordData(data, len);
+
+        // 如果队列是满的，则出列一个元素(即丢弃队列的第一个数据), 来实现继续能 入队列操作.
+        if(queue.remainingCapacity() ==0){
+
+            //
+            AudioRecordData diacardData = null;
+            try {
+                diacardData = queue.take();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            Log.e(TAG,"Queue is Full ,So discard the first audio data !!!!!");
+
+            if(AudioConfig.IS_SAVE_AUDIODATA){
+                try {
+                    fos.write(diacardData.getData(),0,diacardData.getLen());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        // 把 AudioRecordData 引用放入 缓冲区队列 中.
+        try {
+            queue.put(audioData);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     public void run() {
 
         byte[] audioData = new byte[audioBufferSize];
         int readCnt = 0;
         FileOutputStream fos = null;
+        FileOutputStream diacardFos = null;
+
 
         // Starts recording from the AudioRecord instance.
         mAudioRecord.startRecording();
 
         // 2. new FileOutputStream (以 AUDIO_RECORD_FILENAME 为文件名)
-        try {
-            fos = new FileOutputStream(AudioConfig.AUDIO_SAVE_PATH + "/" +AudioConfig.AUDIO_RECORD_FILENAME);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+        if(AudioConfig.IS_SAVE_AUDIODATA) {
+            try {
+                fos = new FileOutputStream(AudioConfig.AUDIO_SAVE_PATH + "/" + AudioConfig.AUDIO_RECORD_FILENAME);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+
+            try {
+                diacardFos = new FileOutputStream(AudioConfig.AUDIO_SAVE_PATH + "/" + AudioConfig.AUDIO_DISCARD_RECORD_FILENAME);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
         }
 
         // read audio data.
         while(isRecording){
             readCnt = mAudioRecord.read(audioData,0,audioData.length);
             Log.i(TAG,"readCnt --> " + readCnt);
+
+            // 把 音频数据封装为 AudioRecordData, 并添加到 缓冲区队列中.
+            addRecordDataIntoQueue(audioData,readCnt,diacardFos);
 
             if(AudioConfig.IS_SAVE_AUDIODATA){
                 // 将把 auido data 写入 文件中.
@@ -117,12 +172,23 @@ public class AudioRecorder implements Runnable {
             }
         }
 
-        if(fos != null) {
-            try {
-                Log.i(TAG,"fos.close() . . .");
-                fos.close();
-            } catch (IOException e) {
-                e.printStackTrace();
+        // 当录音结果后，释放资源.
+        if(AudioConfig.IS_SAVE_AUDIODATA) {
+            if (fos != null) {
+                try {
+                    Log.i(TAG, "fos.close() . . .");
+                    fos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (diacardFos != null) {
+                try {
+                    Log.i(TAG, "diacardFos.close() . . .");
+                    diacardFos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }

@@ -7,6 +7,7 @@ public class AudioConfig {
     public static final boolean IS_SAVE_AUDIODATA = true;
     public static final String AUDIO_SAVE_PATH = "/storage/emulated/0/audioFile";
     public static final String AUDIO_RECORD_FILENAME = "audio_record.pcm";
+    public static final String AUDIO_DISCARD_RECORD_FILENAME = "discard_audio_record.pcm";
     public static final String AUDIO_PLAYER_FILENAME = "audio_player.pcm";
 
 
