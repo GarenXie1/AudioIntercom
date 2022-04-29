@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+import com.garen.AudioIntercom.AudioPlayer.AudioPlayer;
 import com.garen.AudioIntercom.AudioPlayer.UdpReciever;
 import com.garen.AudioIntercom.AudioRecorder.AudioRecorder;
 import com.garen.AudioIntercom.AudioRecorder.UdpSender;
@@ -23,6 +24,7 @@ public class MainActivity extends AppCompatActivity {
     private AudioRecorder recorder = null;
     private UdpSender udpSender = null;
     private UdpReciever udpReciever = null;
+    private AudioPlayer audioPlayer = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +57,10 @@ public class MainActivity extends AppCompatActivity {
                 // 启动 UDP 接收线程，用于 接收音频数据
                 udpReciever = new UdpReciever();
                 udpReciever.startUdpRecieving();
+
+                // 启动 Auido Player 播放线程, 用于播放音频
+                audioPlayer = new AudioPlayer(udpReciever.getAudioPlayerDataQueue());
+                audioPlayer.startPlaying();
             }
         });
 
@@ -73,6 +79,9 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Log.i(TAG ,"will stop recieving UDP audio data.");
                 udpReciever.stopUdpRecieving();
+
+                Log.i(TAG ,"will stop playing audio data.");
+                audioPlayer.stopPlaying();
             }
         });
 

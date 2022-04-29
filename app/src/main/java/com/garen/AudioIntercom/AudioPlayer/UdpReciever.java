@@ -10,7 +10,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class UdpReciever implements Runnable{
@@ -20,6 +22,7 @@ public class UdpReciever implements Runnable{
     private static int RecievePORT = 8888;
     private LinkedBlockingQueue<AudioData> queue;
     private int QUEUE_MAX_COUNT = 100;
+    private String mStopCommand = "STOP";
 
     public void startUdpRecieving(){
 
@@ -43,47 +46,37 @@ public class UdpReciever implements Runnable{
 
     }
 
+    private void sendUDPCommand(String cmd){
+
+        // 发送给 127.0.0.1 内部地址
+        InetAddress address = null;
+        try {
+            address = InetAddress.getByName("127.0.0.1");
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+
+        // 构造 发送数据的 packet
+        DatagramPacket dp = new DatagramPacket(cmd.getBytes(),cmd.length(),address,RecievePORT);
+
+        // 调用 UDP send 发送
+        try {
+            mRecieveUdp.send(dp);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void stopUdpRecieving(){
+
+        // 把 STOP UDP 命令 发送给 接收 UDP 线程.
+        sendUDPCommand(mStopCommand);
 
         // 设置 isRecieving
         isRecieving = false;
 
         //关闭接收端
         mRecieveUdp.close();
-
-        // 把 队列的音频数据，全部写入文件中进行调试验证
-        if(AudioConfig.IS_SAVE_AUDIODATA) {
-            FileOutputStream udpRecieveFos = null;
-            AudioData needPlayData = null;
-
-            try {
-                udpRecieveFos = new FileOutputStream(AudioConfig.AUDIO_SAVE_PATH + "/" + AudioConfig.AUDIO_PLAYER_FILENAME);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
-
-            while(queue.size() != 0){
-                try {
-                    needPlayData = queue.take();
-                    udpRecieveFos.write(needPlayData.getData(),0,needPlayData.getLen());
-                    Log.i(TAG,"needPlayData len --> " + needPlayData.getLen() + "; queue size --> " + queue.size());
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            if (udpRecieveFos != null) {
-                try {
-                    Log.i(TAG, "udpRecieveFos.close() . . .");
-                    udpRecieveFos.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
-        }
     }
 
 
@@ -113,7 +106,7 @@ public class UdpReciever implements Runnable{
             }
         }
 
-        // 把 AudioData 引用放入 缓冲区队列 中.
+        // 把 需要播放的音频 AudioData 引用放入 缓冲区队列 中.
         try {
             queue.put(audioData);
         } catch (InterruptedException e) {
@@ -150,6 +143,7 @@ public class UdpReciever implements Runnable{
 
             // 调用 DatagramSocket 对象的 receive 方法接收数据
             try {
+                // blocks until a datagram is received.
                 mRecieveUdp.receive(dp);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -159,9 +153,13 @@ public class UdpReciever implements Runnable{
             byte[] datas = dp.getData();
             int len = dp.getLength();
 
-            // 把 音频数据封装为 AudioData, 并添加到 缓冲区队列中.
-            addDataIntoQueue(datas,len,discardFos);
-
+            if(new String(datas,0,len).equals(mStopCommand)){
+                Log.i(TAG,"UDP recieve Thread will Stop , due to recieving UDP stop command.");
+                break;
+            }else {
+                // 把 音频数据封装为 AudioData, 并添加到 缓冲区队列中.
+                addDataIntoQueue(datas, len, discardFos);
+            }
 
             // 把音频数据写入到文件中，来进一步验证.
             if(AudioConfig.IS_SAVE_AUDIODATA) {
@@ -192,5 +190,9 @@ public class UdpReciever implements Runnable{
                 }
             }
         }
+    }
+
+    public LinkedBlockingQueue<AudioData> getAudioPlayerDataQueue() {
+        return queue;
     }
 }
