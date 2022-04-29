@@ -19,7 +19,7 @@ public class UdpReciever implements Runnable{
     private static String TAG = "UdpReciever";
     private static boolean isRecieving = false;
     private static DatagramSocket mRecieveUdp = null;
-    private static int RecievePORT = 8888;
+    private static int RecievePORT = 10086;
     private LinkedBlockingQueue<AudioData> queue;
     private int QUEUE_MAX_COUNT = 100;
     private String mStopCommand = "STOP";

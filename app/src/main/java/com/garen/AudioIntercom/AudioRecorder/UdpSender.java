@@ -29,6 +29,12 @@ public class UdpSender implements Runnable{
         mAudioRecordQueue = queue;
     }
 
+    // 通过 构造函数 获取 Audio Record Queue 引用.
+    public UdpSender(LinkedBlockingQueue<AudioData> queue, String ip){
+        mAudioRecordQueue = queue;
+        mDstIP = ip;
+    }
+
     public void startUdpSending(){
 
         try {
