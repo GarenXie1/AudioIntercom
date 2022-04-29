@@ -2,13 +2,13 @@ package com.garen.AudioIntercom.AudioRecorder;
 
 import java.util.Arrays;
 
-public class AudioRecordData {
+public class AudioData {
 
     private byte[] mData;
     private int mLen;
 
 
-    public AudioRecordData(byte[] data, int len){
+    public AudioData(byte[] data, int len){
         mLen = len;
         mData = new byte[mLen];
 
@@ -26,7 +26,7 @@ public class AudioRecordData {
 
     @Override
     public String toString() {
-        return "AudioRecordData{" +
+        return "AudioData{" +
                 "mData=" + Arrays.toString(mData) +
                 ", mLen=" + mLen +
                 '}';

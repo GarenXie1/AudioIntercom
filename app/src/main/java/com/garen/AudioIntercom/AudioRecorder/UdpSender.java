@@ -18,14 +18,14 @@ public class UdpSender implements Runnable{
 
     private static String TAG = "UdpSender";
     private boolean isUdpSending =false;
-    private LinkedBlockingQueue<AudioRecordData> mAudioRecordQueue;
-    private AudioRecordData recordData;
+    private LinkedBlockingQueue<AudioData> mAudioRecordQueue;
+    private AudioData recordData;
     private DatagramSocket udpSocket;
     private String mDstIP = "192.168.1.100";
     private int PORT = 10086;
 
     // 通过 构造函数 获取 Audio Record Queue 引用.
-    public UdpSender(LinkedBlockingQueue<AudioRecordData> queue){
+    public UdpSender(LinkedBlockingQueue<AudioData> queue){
         mAudioRecordQueue = queue;
     }
 

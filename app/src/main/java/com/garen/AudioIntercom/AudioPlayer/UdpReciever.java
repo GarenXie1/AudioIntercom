@@ -3,7 +3,7 @@ package com.garen.AudioIntercom.AudioPlayer;
 import android.util.Log;
 
 import com.garen.AudioIntercom.AudioConfig.AudioConfig;
-import com.garen.AudioIntercom.AudioRecorder.AudioRecordData;
+import com.garen.AudioIntercom.AudioRecorder.AudioData;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -18,7 +18,7 @@ public class UdpReciever implements Runnable{
     private static boolean isRecieving = false;
     private static DatagramSocket mRecieveUdp = null;
     private static int RecievePORT = 8888;
-    private LinkedBlockingQueue<AudioRecordData> queue;
+    private LinkedBlockingQueue<AudioData> queue;
     private int QUEUE_MAX_COUNT = 100;
 
     public void startUdpRecieving(){
@@ -31,7 +31,7 @@ public class UdpReciever implements Runnable{
         }
 
         // 初始化  数据缓冲区队列.
-        queue = new LinkedBlockingQueue<AudioRecordData>(QUEUE_MAX_COUNT);
+        queue = new LinkedBlockingQueue<AudioData>(QUEUE_MAX_COUNT);
         Log.i(TAG,"init recieve UDP queue remaining Size --> " + queue.remainingCapacity());
         Log.i(TAG,"init recieve UDP queue elements Size --> " + queue.size());
 
@@ -54,7 +54,7 @@ public class UdpReciever implements Runnable{
         // 把 队列的音频数据，全部写入文件中进行调试验证
         if(AudioConfig.IS_SAVE_AUDIODATA) {
             FileOutputStream udpRecieveFos = null;
-            AudioRecordData needPlayData = null;
+            AudioData needPlayData = null;
 
             try {
                 udpRecieveFos = new FileOutputStream(AudioConfig.AUDIO_SAVE_PATH + "/" + AudioConfig.AUDIO_PLAYER_FILENAME);
@@ -89,14 +89,14 @@ public class UdpReciever implements Runnable{
 
     private void addDataIntoQueue(byte[] data , int len, FileOutputStream diacardFos){
 
-        // new AudioRecordData 类.
-        // 需要把 data 数组 重新拷贝一份到 AudioRecordData 中.
-        AudioRecordData audioData = new AudioRecordData(data, len);
+        // new AudioData 类.
+        // 需要把 data 数组 重新拷贝一份到 AudioData 中.
+        AudioData audioData = new AudioData(data, len);
 
         // 如果队列是满的，则出列一个元素(即丢弃录取的音频的 前面部分数据), 来实现继续能 入队列操作.
         if(queue.remainingCapacity() ==0){
 
-            AudioRecordData diacardData = null;
+            AudioData diacardData = null;
             try {
                 diacardData = queue.take();
             } catch (InterruptedException e) {
@@ -113,7 +113,7 @@ public class UdpReciever implements Runnable{
             }
         }
 
-        // 把 AudioRecordData 引用放入 缓冲区队列 中.
+        // 把 AudioData 引用放入 缓冲区队列 中.
         try {
             queue.put(audioData);
         } catch (InterruptedException e) {
@@ -159,7 +159,7 @@ public class UdpReciever implements Runnable{
             byte[] datas = dp.getData();
             int len = dp.getLength();
 
-            // 把 音频数据封装为 AudioRecordData, 并添加到 缓冲区队列中.
+            // 把 音频数据封装为 AudioData, 并添加到 缓冲区队列中.
             addDataIntoQueue(datas,len,discardFos);
 
 
