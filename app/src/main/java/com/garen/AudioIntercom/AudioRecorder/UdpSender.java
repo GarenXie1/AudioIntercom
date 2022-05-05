@@ -96,7 +96,10 @@ public class UdpSender implements Runnable{
 
             // 构造 DatagramPacket 对象
             DatagramPacket dp = new DatagramPacket(data,len,address,PORT);
-            Log.i(TAG,"UDP sending len --> " + len + "; mAudioRecordQueue size --> " + mAudioRecordQueue.size());
+
+            if(AudioConfig.DEBUG) {
+                Log.i(TAG, "UDP sending len --> " + len + "; mAudioRecordQueue size --> " + mAudioRecordQueue.size());
+            }
 
             // UDP 发送
             try {

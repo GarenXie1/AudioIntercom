@@ -6,7 +6,8 @@ import android.media.AudioTrack;
 import android.media.MediaRecorder;
 
 public class AudioConfig {
-    public static final boolean IS_SAVE_AUDIODATA = true;
+    public static final boolean DEBUG = false;
+    public static final boolean IS_SAVE_AUDIODATA = false;
     public static final String AUDIO_SAVE_PATH = "/storage/emulated/0/audioFile";
 
     // Auido Record debug file.

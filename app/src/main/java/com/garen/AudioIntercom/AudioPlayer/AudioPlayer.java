@@ -89,7 +89,7 @@ public class AudioPlayer implements Runnable{
             AudioData needPlayAudioData = null;
             try {
                 // 如果队列为空，会导致阻塞在此.
-                Log.i(TAG,"mAudioPlayerDataQueue size --> " + mAudioPlayerDataQueue.size());
+                //Log.i(TAG,"mAudioPlayerDataQueue size --> " + mAudioPlayerDataQueue.size());
                 needPlayAudioData = mAudioPlayerDataQueue.take();
             } catch (InterruptedException e) {
                 e.printStackTrace();

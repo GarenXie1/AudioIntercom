@@ -112,6 +112,10 @@ public class UdpReciever implements Runnable{
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
+        if(AudioConfig.DEBUG) {
+            Log.i(TAG, "UDP recieving len --> " + len + "; mAudioPlayerDataQueue size --> " + queue.size());
+        }
     }
 
     @Override
